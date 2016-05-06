@@ -1,0 +1,26 @@
+{
+    "author": {
+        "name": "Sven, mailsvb@gmail.com"
+    },
+    "dependencies": {
+        "aha": "*"
+    },
+    "scripts": {
+        "postinstall": "node testssl/install-testssl.js"
+    },
+    "description": "node-red implementation of the testssl.sh script",
+    "name": "node-red-contrib-testssl",
+    "keywords": [ "node-red", "testssl", "vulnerability", "scan" ],
+    "license": "MIT",
+    "node-red": {
+        "nodes": {
+            "testssl": "testssl/testssl.js"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mailsvb/node-red-contrib-testssl.git"
+    },
+    "homepage": "https://github.com/mailsvb/node-red-contrib-testssl#readme",
+    "version": "1.0.0"
+}
