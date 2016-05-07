@@ -7,6 +7,7 @@ module.exports = function(RED) {
     var util = require('util');
     var fs = require('fs');
     var aha = require('aha');
+    var moment = require('moment');
     var spawn = require('child_process').spawn;
 
     function TestSSLScan(n) {
@@ -25,6 +26,7 @@ module.exports = function(RED) {
                 return;
             }
             console.log("[testssl][" + scanID + "] - start scan for host: " + host);
+            var timeBefore = moment();
             
             if (path != undefined && path != "") {
                 console.log("[testssl][" + scanID + "] - using openssl executable: " + path);
@@ -46,6 +48,7 @@ module.exports = function(RED) {
                 '-S',
                 '-P',
                 '-U',
+                '-E',
                 host
               ],
               {
@@ -84,12 +87,16 @@ module.exports = function(RED) {
                     console.error(error);
                 }
                 else {
+                    var timeAfter = moment();
                     var outputHTML = aha(new Buffer(HTML, 'hex'));
                     var payload = {
                         text: output,
                         html: outputHTML,
                         timeout: timeout,
-                        host: host
+                        host: host,
+                        duration: timeAfter.diff(timeBefore, 'seconds'),
+                        start: timeBefore.utc().format(),
+                        end: timeAfter.utc().format()
                     }
                     var msg = {
                         payload: payload
