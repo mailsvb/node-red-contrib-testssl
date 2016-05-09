@@ -82,9 +82,9 @@ module.exports = function(RED) {
                 if (error != "") {
                     node.status({fill:"red",shape:"dot",text:'error during scan'});
                     var msg = {
-                        payload: error
+                        payload: error.toString().trim().replace(/\[[^m]*m/g,'')
                     }
-                    console.error(error);
+                    node.send(msg);
                 }
                 else {
                     var timeAfter = moment();
