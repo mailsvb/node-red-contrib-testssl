@@ -21,16 +21,17 @@
     <p>Provides a node for running testssl.sh script</p>
     <p>Provide the host address to scan and (optional) the local system path to an openssl executable</p>
     <ul>
-        <li><code>Host</code> The host to scan</li>
-        <li><code>OpenSSL</code> The local system path to an OpenSSL executable file (defaults to /usr/bin/openssl)</li>
+        <li><code>host</code> The host to scan</li>
+        <li><code>opensslpath</code> The local system path to an OpenSSL executable file (defaults to /usr/bin/openssl)</li>
     </ul>
     <p>The host to scan can also be provided as text within msg.host</p>
     <p>The output message contains the following properties:</p>
     <ul>
-        <li><code>payload.text</code> The scan report as text</li>
-        <li><code>payload.html</code> The scan report as HTML</li>
-        <li><code>payload.host</code> The host that was scanned</li>
+        <li><code>msg.payload.text</code> The scan report as text</li>
+        <li><code>msg.payload.html</code> The scan report as HTML</li>
+        <li><code>msg.payload.host</code> The host that was scanned</li>
     </ul>
+    <p>Failure and status messages are provided within msg.payload as non object</p>
 </script>
 
 <script type="text/javascript">
