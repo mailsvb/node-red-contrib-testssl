@@ -25,13 +25,17 @@
         <li><code>opensslpath</code> The local system path to an OpenSSL executable file (defaults to /usr/bin/openssl)</li>
     </ul>
     <p>The host to scan can also be provided as text within msg.host</p>
-    <p>The output message contains the following properties:</p>
+    <p>The output msg.payload object contains the following properties:</p>
     <ul>
-        <li><code>msg.payload.text</code> The scan report as text</li>
-        <li><code>msg.payload.html</code> The scan report as HTML</li>
-        <li><code>msg.payload.host</code> The host that was scanned</li>
+        <li><code>text</code> The scan report as text</li>
+        <li><code>html</code> The scan report as HTML</li>
+        <li><code>host</code> The host that was scanned</li>
+        <li><code>timeout</code> True, if scan did not finish before stopped after 10 minutes</li>
+        <li><code>duration</code> The duration of the current scan</li>
+        <li><code>start</code> The start time of the current scan</li>
+        <li><code>end</code> The end time of the current scan</li>
     </ul>
-    <p>Failure and status messages are provided within msg.payload as non object</p>
+    <p>Failure and status messages are provided within msg.payload as non object (string)</p>
 </script>
 
 <script type="text/javascript">
