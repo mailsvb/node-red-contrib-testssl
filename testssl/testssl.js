@@ -96,6 +96,7 @@ module.exports = function(RED) {
                         '-P',
                         '-U',
                         '-E',
+                        '-s',
                         curVal
                       ],
                       {
