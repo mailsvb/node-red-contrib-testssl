@@ -1,7 +1,3 @@
-/**
- **
- **/
-
 module.exports = function(RED) {
     "use strict";
     const util = require('util');
@@ -21,13 +17,13 @@ module.exports = function(RED) {
 
         this.on("input",function(msg) {
             var host    = scantarget || msg.host;
-            var path    = opensslpath || msg.opensslpath;
+            var openssl = opensslpath || msg.opensslpath;
             var scanID  = msg._msgid;
             
-            // setting path
-            if (path != undefined && path != "") {
-                console.log("[testssl][" + scanID + "] - using openssl executable: " + path);
-                path = '--openssl=' + path;
+            // setting openssl path
+            if (openssl != undefined && openssl != "") {
+                console.log("[testssl][" + scanID + "] - using openssl executable: " + openssl);
+                openssl = '--openssl=' + openssl;
             }
             
             // checking host and port data provided
@@ -65,22 +61,22 @@ module.exports = function(RED) {
                 return;
             }
             
-            GetMyTarget(tmpHost, tmpPort, function(hostToScan){
-                if (typeof hostToScan === "string") {
-                    node.status({fill:"red",shape:"dot",text:hostToScan});
-                    msg.payload = hostToScan;
+            GetMyTarget(tmpHost, tmpPort, function(hostsToScan){
+                if (typeof hostsToScan === "string") {
+                    node.status({fill:"red",shape:"dot",text:hostsToScan});
+                    msg.payload = hostsToScan;
                     node.send(msg);
                     return;
                 }
                 
                 node.status({fill:"green",shape:"dot",text:"scanning " + host});
-                msg.payload = "scanning... " + hostToScan.join();
+                msg.payload = "scanning... " + hostsToScan.join();
                 node.send(msg);
-                console.log("[testssl][" + scanID + "] - scanning " + host + ": " + hostToScan.join());
+                console.log("[testssl][" + scanID + "] - scanning " + host + ": " + hostsToScan.join());
                 
                 var timeBefore = moment();
                 
-                hostToScan.forEach(function(curVal, index, arr){
+                hostsToScan.forEach(function(singleAddrToScan, index, arr){
                 
                     var output = "";
                     var HTML = "";
@@ -89,7 +85,7 @@ module.exports = function(RED) {
                     
                     var run = spawn('./testssl.sh',
                       [
-                        path,
+                        openssl,
                         '-f',
                         '-p',
                         '-S',
@@ -97,14 +93,14 @@ module.exports = function(RED) {
                         '-U',
                         '-E',
                         '-s',
-                        curVal
+                        singleAddrToScan
                       ],
                       {
                           cwd: __dirname
                       }
                     );
                     
-                    // timeout for scan of 20 minutes
+                    // timeout for scan of 10 minutes
                     var timeout = setTimeout(function(){
                         if (run != null) {
                             console.log("[testssl][" + scanID + "][" + index + "] - timeout of scan");
@@ -118,7 +114,7 @@ module.exports = function(RED) {
                     // interval to inform user of ongoing activity
                     var interval = setInterval(function(){
                         if (run != null) {
-                            msg.payload = "scan is still running (" + moment().diff(timeBefore, 'seconds') + " seconds) for " + curVal;
+                            msg.payload = "scan is still running (" + moment().diff(timeBefore, 'seconds') + " seconds) for " + singleAddrToScan;
                             node.send(msg);
                         }
                     }, 60000);
@@ -133,7 +129,7 @@ module.exports = function(RED) {
                     });
 
                     run.on('close', function(){
-                        console.log("[testssl][" + scanID + "][" + index + "] - scan finished for " + curVal);
+                        console.log("[testssl][" + scanID + "][" + index + "] - scan finished for " + singleAddrToScan);
                         run = null;
                         clearTimeout(timeout);
                         clearInterval(interval);
@@ -149,7 +145,7 @@ module.exports = function(RED) {
                                 text: output,
                                 html: outputHTML,
                                 timeout: timeout,
-                                host: curVal,
+                                host: singleAddrToScan,
                                 duration: timeAfter.diff(timeBefore, 'seconds'),
                                 start: timeBefore.utc().format(),
                                 end: timeAfter.utc().format()
@@ -168,11 +164,11 @@ module.exports = function(RED) {
     
     const GetMyTarget = function(tmpHost, tmpPort, cb)
     {
-        var hostToScan = [];
+        var hostsToScan = [];
         if (validator.isIP(tmpHost, '4') === true)
         {
-            hostToScan.push(tmpHost + ':' + tmpPort);
-            cb(hostToScan);
+            hostsToScan.push(tmpHost + ':' + tmpPort);
+            cb(hostsToScan);
         }
         else if (validator.isFQDN(tmpHost) === true)
         {
@@ -182,9 +178,9 @@ module.exports = function(RED) {
                     return;
                 }
                 for (var i=0; i < addresses.length; i++) {
-                    hostToScan.push(addresses[i] + ':' + tmpPort);
+                    hostsToScan.push(addresses[i] + ':' + tmpPort);
                 }
-                cb(hostToScan);
+                cb(hostsToScan);
             });
         }
         else
