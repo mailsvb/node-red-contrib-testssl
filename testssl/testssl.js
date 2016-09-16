@@ -61,22 +61,22 @@ module.exports = function(RED) {
                 return;
             }
             
-            GetMyTarget(tmpHost, tmpPort, function(hostsToScan){
-                if (typeof hostsToScan === "string") {
-                    node.status({fill:"red",shape:"dot",text:hostsToScan});
-                    msg.payload = hostsToScan;
+            GetMyTarget(tmpHost, function(IPsToScan){
+                if (typeof IPsToScan === "string") {
+                    node.status({fill:"red",shape:"dot",text:IPsToScan});
+                    msg.payload = IPsToScan;
                     node.send(msg);
                     return;
                 }
                 
-                node.status({fill:"green",shape:"dot",text:"scanning " + host});
-                msg.payload = "scanning... " + hostsToScan.join();
+                node.status({fill:"green",shape:"dot",text:"scanning " + tmpHost + " on port " + tmpPort});
+                msg.payload = "scanning... " + IPsToScan.join() + ' on port ' + tmpPort;
                 node.send(msg);
-                console.log("[testssl][" + scanID + "] - scanning " + host + ": " + hostsToScan.join());
+                console.log("[testssl][" + scanID + "] - scanning " + tmpHost + " via " + IPsToScan.join() + " on port " + tmpPort);
                 
                 var timeBefore = moment();
                 
-                hostsToScan.forEach(function(singleAddrToScan, index, arr){
+                IPsToScan.forEach(function(singleAddrToScan, index, arr){
                 
                     var output = "";
                     var HTML = "";
@@ -93,7 +93,9 @@ module.exports = function(RED) {
                         '-U',
                         '-E',
                         '-s',
-                        singleAddrToScan
+                        '--ip',
+                        singleAddrToScan,
+                        tmpHost + ':' + tmpPort
                       ],
                       {
                           cwd: __dirname
@@ -114,7 +116,7 @@ module.exports = function(RED) {
                     // interval to inform user of ongoing activity
                     var interval = setInterval(function(){
                         if (run != null) {
-                            msg.payload = "scan is still running (" + moment().diff(timeBefore, 'seconds') + " seconds) for " + singleAddrToScan;
+                            msg.payload = "scan is still running (" + moment().diff(timeBefore, 'seconds') + " seconds) for " + singleAddrToScan + ":" + tmpPort;
                             node.send(msg);
                         }
                     }, 60000);
@@ -129,7 +131,7 @@ module.exports = function(RED) {
                     });
 
                     run.on('close', function(){
-                        console.log("[testssl][" + scanID + "][" + index + "] - scan finished for " + singleAddrToScan);
+                        console.log("[testssl][" + scanID + "][" + index + "] - scan finished for " + singleAddrToScan + ":" + tmpPort);
                         run = null;
                         clearTimeout(timeout);
                         clearInterval(interval);
@@ -162,13 +164,13 @@ module.exports = function(RED) {
 
     RED.nodes.registerType("testssl-node",TestSSLScan);
     
-    const GetMyTarget = function(tmpHost, tmpPort, cb)
+    const GetMyTarget = function(tmpHost, cb)
     {
-        var hostsToScan = [];
+        var IPsToScan    = [];
         if (validator.isIP(tmpHost, '4') === true)
         {
-            hostsToScan.push(tmpHost + ':' + tmpPort);
-            cb(hostsToScan);
+            IPsToScan.push(tmpHost);
+            cb(IPsToScan);
         }
         else if (validator.isFQDN(tmpHost) === true)
         {
@@ -178,9 +180,9 @@ module.exports = function(RED) {
                     return;
                 }
                 for (var i=0; i < addresses.length; i++) {
-                    hostsToScan.push(addresses[i] + ':' + tmpPort);
+                    IPsToScan.push(addresses[i]);
                 }
-                cb(hostsToScan);
+                cb(IPsToScan);
             });
         }
         else

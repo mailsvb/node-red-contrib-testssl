@@ -56,8 +56,8 @@ var testsslLicREQ = https.request(testsslLicOPTIONS, function(res) {
     });
     
     res.on('end', function(){
-        fs.writeFileSync(__dirname + '/LICENSE-testssl.sh', data);
-        fs.chmodSync(__dirname + '/LICENSE-testssl.sh', '644');
+        fs.writeFileSync(__dirname + '/LICENSE-testssl', data);
+        fs.chmodSync(__dirname + '/LICENSE-testssl', '644');
         console.log('By using this node-red node, you agree to the license of testssl.sh. A copy of the license is available here: ' + __dirname);
     });
 });
