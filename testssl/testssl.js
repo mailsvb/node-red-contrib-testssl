@@ -17,9 +17,9 @@ module.exports = function(RED) {
         var node = this;
 
         this.on("input",function(msg) {
-            var host            = msg.host || scantarget;
-            var openssl         = msg.opensslpath || opensslpath;
-            var cabundlespath   = msg.cabundlespath || cabundlespath;
+            var host            = scantarget || msg.host;
+            var openssl         = opensslpath || msg.opensslpath;
+            var cabundles       = cabundlespath || msg.cabundlespath;
             var scanID          = msg._msgid;
             
             // setting openssl path
@@ -29,9 +29,9 @@ module.exports = function(RED) {
             }
             
             // setting ca-bundles path
-            if (cabundlespath != undefined && cabundlespath != "") {
-                console.log("[testssl][" + scanID + "] - using ca bundles path: " + cabundlespath);
-                cabundlespath = '--ca-bundles="' + cabundlespath + '"';
+            if (cabundles != undefined && cabundles != "") {
+                console.log("[testssl][" + scanID + "] - using ca bundles path: " + cabundles);
+                cabundles = '--ca-bundles=' + cabundles;
             }
             
             // checking host and port data provided
@@ -94,7 +94,7 @@ module.exports = function(RED) {
                     var run = spawn('./testssl.sh',
                       [
                         openssl,
-                        cabundlespath,
+                        cabundles,
                         '-f',
                         '-p',
                         '-S',
