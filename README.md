@@ -11,6 +11,7 @@ it will download the latest version of the testssl.sh script from github automat
 - scan a host and get the report as text and HTML output.
 - if an FQDN is provided as host, every IP gets scanned from the DNS result separately. Every IP will get a single report.
 - use your own OpenSSL version for the scan (simply provide the path to the executable).
+- provide a path to your CA certificates file(s) to allow the verification of the chain of trust with the remote host.
 
 ## Build OpenSSL for testing with testssl.sh (working for OpenSSL 1.0.1)
 ```
