@@ -1,19 +1,19 @@
-<!--
-
--->
-
 <script type="text/x-red" data-template-name="testssl-node">
     <div class="form-row">
-        <label for="node-input-host"><i class="fa fa-globe"></i> Address:</label>
-        <input type="text" id="node-input-host" placeholder="google.com:443">
+        <label for="node-input-host" style="width:35%"><i class="fa fa-globe"></i> Address:</label>
+        <input type="text" id="node-input-host" style="width:50%" placeholder="google.com:443">
     </div>
     <div class="form-row">
-        <label for="node-input-opensslpath"><i class="fa fa-globe"></i> OpenSSL:</label>
-        <input type="text" id="node-input-opensslpath" placeholder="/usr/bin/openssl">
+        <label for="node-input-opensslpath" style="width:35%"><i class="fa fa-globe"></i> OpenSSL:</label>
+        <input type="text" id="node-input-opensslpath" style="width:50%" placeholder="/usr/bin/openssl">
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> Name:</label>
-        <input type="text" id="node-input-name" placeholder="testssl...">
+        <label for="node-input-cabundlespath" style="width:35%"><i class="fa fa-globe"></i> CA Bundles:</label>
+        <input type="text" id="node-input-cabundlespath" style="width:50%" placeholder="/etc/ssl/*.pem">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name" style="width:35%"><i class="fa fa-tag"></i> Name:</label>
+        <input type="text" id="node-input-name" style="width:50%" placeholder="testssl...">
     </div>
 </script>
 
@@ -23,6 +23,7 @@
     <ul>
         <li><code>host</code> The host to scan</li>
         <li><code>opensslpath</code> The local system path to an OpenSSL executable file (defaults to /usr/bin/openssl)</li>
+        <li><code>cabundlespath</code> The local system path to CA certificate files for verifying the chain of trust (defaults to /usr/bin/openssl)</li>
     </ul>
     <p>The host to scan can also be provided as text within msg.host</p>
     <p>The output msg.payload object contains the following properties:</p>
@@ -30,7 +31,7 @@
         <li><code>text</code> The scan report as text</li>
         <li><code>html</code> The scan report as HTML</li>
         <li><code>host</code> The host that was scanned</li>
-        <li><code>timeout</code> True, if scan did not finish before stopped after 10 minutes</li>
+        <li><code>timeout</code> True, if scan did not finish before it got stopped after 10 minutes</li>
         <li><code>duration</code> The duration of the current scan</li>
         <li><code>start</code> The start time of the current scan</li>
         <li><code>end</code> The end time of the current scan</li>
@@ -46,6 +47,7 @@
             name: {value:""},
             host: {value:""},
             opensslpath: {value:""},
+            cabundlespath: {value:""},
         },
         inputs:1,
         outputs:1,
