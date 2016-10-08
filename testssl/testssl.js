@@ -12,7 +12,7 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
         var scantarget      = n.host;
         var opensslpath     = n.opensslpath || '/usr/bin/openssl';
-        var cabundlespath   = n.cabundlespath || '/etc/ssl/*.pem';
+        var cabundlespath   = n.cabundlespath || '/etc/ssl';
 
         var node = this;
 
@@ -21,6 +21,7 @@ module.exports = function(RED) {
             var openssl         = opensslpath || msg.opensslpath;
             var cabundles       = cabundlespath || msg.cabundlespath;
             var scanID          = msg._msgid;
+            var env             = Object.create( process.env );
             
             // setting openssl path
             if (openssl != undefined && openssl != "") {
@@ -31,7 +32,7 @@ module.exports = function(RED) {
             // setting ca-bundles path
             if (cabundles != undefined && cabundles != "") {
                 console.log("[testssl][" + scanID + "] - using ca bundles path: " + cabundles);
-                cabundles = '--ca-bundles=' + cabundles;
+                env.CA_BUNDLES_PATH = cabundles;
             }
             
             // checking host and port data provided
@@ -94,7 +95,6 @@ module.exports = function(RED) {
                     var run = spawn('./testssl.sh',
                       [
                         openssl,
-                        cabundles,
                         '-f',
                         '-p',
                         '-S',
@@ -107,7 +107,8 @@ module.exports = function(RED) {
                         tmpHost + ':' + tmpPort
                       ],
                       {
-                          cwd: __dirname
+                          cwd: __dirname,
+                          env: env
                       }
                     );
                     
