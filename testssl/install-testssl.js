@@ -4,7 +4,7 @@ var fs = require('fs');
 var testsslOPTIONS = {
     hostname: 'raw.githubusercontent.com',
     port: 443,
-    path: '/mailsvb/testssl.sh/CA_BUNDLES_PATH/testssl.sh',
+    path: '/drwetter/testssl.sh/master/testssl.sh',
     method: 'GET',
     rejectUnauthorized: false
 };
