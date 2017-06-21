@@ -1,59 +1,43 @@
 const https = require('https');
 const fs = require('fs');
 
-let testsslOPTIONS = {
-    hostname: 'raw.githubusercontent.com',
-    port: 443,
-    path: '/drwetter/testssl.sh/2.9dev/testssl.sh',
-    method: 'GET',
-    rejectUnauthorized: false
+const downloadFile = (filename, target, permissions) => {
+    let OPTIONS = {
+        hostname: 'raw.githubusercontent.com',
+        port: 443,
+        path: '/drwetter/testssl.sh/2.9dev/' + filename,
+        method: 'GET',
+        rejectUnauthorized: false
+    };
+    
+    let REQ = https.request(OPTIONS, (res) => {
+        if (res.statusCode != 200)
+        {
+            console.error('unable to download ' + filename + '. Please copy it manually to here: ' + __dirname);
+        }
+        
+        let data = "";
+        
+        res.on('data', (d) => data += d.toString());
+        
+        res.on('end', () => {
+            fs.writeFileSync(__dirname + '/' + target, data, {flag: 'w+'});
+            fs.chmodSync(__dirname + '/' + target, permissions);
+            console.log('A copy of ' + filename + ' has been downloaded');
+        });
+    });
+
+    REQ.on('error', (e) => console.error('unable to download ' + filename + ' script. Please copy it manually to here: ' + __dirname));
+    REQ.end();
 };
 
-let testsslREQ = https.request(testsslOPTIONS, (res) => {
-    if (res.statusCode != 200)
-    {
-        console.error('unable to download testssl.sh script. Please copy it manually to here: ' + __dirname);
-    }
-    
-    let data = "";
-    
-    res.on('data', (d) => data += d.toString());
-    
-    res.on('end', () => {
-        fs.writeFileSync(__dirname + '/testssl.sh', data, {flag: 'w+'});
-        fs.chmodSync(__dirname + '/testssl.sh', '755');
-        console.log('A copy of testssl.sh has been placed here: ' + __dirname);
-    });
-});
+if (!fs.existsSync(__dirname + '/etc')){
+    fs.mkdirSync(__dirname + '/etc');
+}
 
-testsslREQ.on('error', (e) => console.error('unable to download testssl.sh script. Please copy it manually to here: ' + __dirname));
-testsslREQ.end();
+downloadFile('testssl.sh', 'testssl.sh', '755');
+downloadFile('LICENSE', 'LICENSE-testssl', '644');
 
-let testsslLicOPTIONS = {
-    hostname: 'raw.githubusercontent.com',
-    port: 443,
-    path: '/drwetter/testssl.sh/2.9dev/LICENSE',
-    method: 'GET',
-    rejectUnauthorized: false
-};
-
-let testsslLicREQ = https.request(testsslLicOPTIONS, (res) => {
-    if (res.statusCode != 200)
-    {
-        console.error('unable to download testssl.sh License. Please copy it manually to here: ' + __dirname);
-    }
-    
-    let data = "";
-    
-    res.on('data', (d) => data += d.toString());
-    
-    res.on('end', () => {
-        fs.writeFileSync(__dirname + '/LICENSE-testssl', data, {flag: 'w+'});
-        fs.chmodSync(__dirname + '/LICENSE-testssl', '644');
-        console.log('By using this node-red node, you agree to the license of testssl.sh. A copy of the license is available here: ' + __dirname);
-    });
-});
-
-
-testsslLicREQ.on('error', (e) => console.error('unable to download testssl.sh script. Please copy it manually to here: ' + __dirname));
-testsslLicREQ.end();
+downloadFile('etc/tls_data.txt', 'etc/tls_data.txt', '644');
+downloadFile('etc/cipher-mapping.txt', 'etc/cipher-mapping.txt', '644');
+downloadFile('etc/common-primes.txt', 'etc/common-primes.txt', '644');

@@ -120,7 +120,7 @@ module.exports = function(RED) {
                     );
                     
                     // timeout for scan of 10 minutes
-                    let timeout = setTimeout(function(){
+                    timeout = setTimeout(function(){
                         if (run != null) {
                             node.log(`[testssl][${scanID}][${index}] - timeout of scan`);
                             node.status({fill:"red",shape:"dot",text:"timeout during scan"});
