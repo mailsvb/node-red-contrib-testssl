@@ -106,10 +106,10 @@ module.exports = function(RED) {
                         '--cipher-per-proto',
                         '--pfs',
                         '--rc4',
-                        '--ip',
                         '--nodns',
                         '--jsonfile',
                         jsonfile,
+                        '--ip',
                         singleAddrToScan,
                         tmpHost + ':' + tmpPort
                       ],
