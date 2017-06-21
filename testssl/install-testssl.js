@@ -4,7 +4,7 @@ var fs = require('fs');
 var testsslOPTIONS = {
     hostname: 'raw.githubusercontent.com',
     port: 443,
-    path: '/drwetter/testssl.sh/master/testssl.sh',
+    path: '/drwetter/testssl.sh/2.9dev/testssl.sh',
     method: 'GET',
     rejectUnauthorized: false
 };
@@ -38,7 +38,7 @@ testsslREQ.end();
 var testsslLicOPTIONS = {
     hostname: 'raw.githubusercontent.com',
     port: 443,
-    path: '/drwetter/testssl.sh/master/LICENSE',
+    path: '/drwetter/testssl.sh/2.9dev/LICENSE',
     method: 'GET',
     rejectUnauthorized: false
 };
