@@ -3,7 +3,6 @@
         "name": "Sven, mailsvb@gmail.com"
     },
     "dependencies": {
-        "aha": "*",
         "moment": "*",
         "validator": "*"
     },
@@ -24,5 +23,5 @@
         "url": "git+https://github.com/mailsvb/node-red-contrib-testssl.git"
     },
     "homepage": "https://github.com/mailsvb/node-red-contrib-testssl#readme",
-    "version": "1.7.1"
+    "version": "1.8.0"
 }
