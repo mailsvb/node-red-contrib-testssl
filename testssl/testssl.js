@@ -2,7 +2,6 @@ module.exports = function(RED) {
     "use strict";
     const util = require('util');
     const fs = require('fs');
-    const aha = require('aha');
     const crypto = require('crypto');
     const moment = require('moment');
     const validator = require("validator");
@@ -89,11 +88,11 @@ module.exports = function(RED) {
                 IPsToScan.forEach((singleAddrToScan, index, arr) => {
                 
                     let output = "";
-                    let HTML = "";
                     let error = "";
                     let timeout = false;
-                    let hash = crypto.createHash('sha256').update(`${scanID}${tmpHost}${tmpPort}`);
-                    let jsonfile = '/tmp/' + hash.digest('hex');
+                    let hash = crypto.createHash('sha256').update(`${scanID}${tmpHost}${tmpPort}`).digest('hex');
+                    let jsonfile = '/tmp/' + hash + 'json';
+                    let htmlfile = '/tmp/' + hash + 'html';
                     
                     let run = spawn('./testssl.sh',
                       [
@@ -107,8 +106,12 @@ module.exports = function(RED) {
                         '--pfs',
                         '--rc4',
                         '--nodns',
+                        '--openssl-timeout',
+                        '30',
                         '--jsonfile',
                         jsonfile,
+                        '--htmlfile',
+                        htmlfile,
                         '--ip',
                         singleAddrToScan,
                         tmpHost + ':' + tmpPort
@@ -139,7 +142,6 @@ module.exports = function(RED) {
                     }, 60000);
                     
                     run.stdout.on('data', (data) => {
-                        HTML+=data.toString('hex');
                         output+=data.toString();
                     });
 
@@ -159,16 +161,25 @@ module.exports = function(RED) {
                         }
                         else {
                             let timeAfter = moment();
-                            let outputHTML = aha(new Buffer(HTML, 'hex'));
                             try {
+                                let tmp = jsonfile;
                                 jsonfile = fs.readFileSync(jsonfile).toString();
+                                fs.unlinkSync(tmp);
+                            }
+                            catch (e) {
+                                node.error(`[testssl][${scanID}][${index}] - ${e}`);
+                            }
+                            try {
+                                let tmp = htmlfile;
+                                htmlfile = fs.readFileSync(htmlfile).toString();
+                                fs.unlinkSync(tmp);
                             }
                             catch (e) {
                                 node.error(`[testssl][${scanID}][${index}] - ${e}`);
                             }
                             let payload = {
                                 text: output,
-                                html: outputHTML,
+                                html: htmlfile,
                                 json: jsonfile,
                                 timeout: timeout,
                                 host: singleAddrToScan,
