@@ -13,8 +13,13 @@ it will download the latest version of the testssl.sh script from github automat
 - use your own OpenSSL version for the scan (simply provide the path to the executable).
 - provide a path to your CA certificates file(s) to allow the verification of the chain of trust with the remote host.
 
-## Build OpenSSL for testing with testssl.sh (working for OpenSSL 1.0.1)
+## Build OpenSSL for testing purposes
 ```
-sed -i.bak -r 's/"(ssl2|rc5|md2|zlib|weak-ssl-ciphers)"[[:space:]]+=>/#&/g' Configure
-sed -i.bak -r 's/^(#[[:space:]]define[[:space:]]TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES[[:space:]]+)0/\11/' ssl/tls1.h
+git clone https://github.com/PeterMosmans/openssl.git
+./config --prefix=/OPENSSLTEST
+make depend && make && make install
 ```
+
+## Thanks to
+* [Dirk Wetter](https://github.com/drwetter)
+* [Peter Mosman](https://github.com/PeterMosmans)
