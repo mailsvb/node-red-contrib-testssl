@@ -90,9 +90,9 @@ module.exports = function(RED) {
                     let output = "";
                     let error = "";
                     let timeout = false;
-                    let hash = crypto.createHash('sha256').update(`${scanID}${tmpHost}${tmpPort}`).digest('hex');
-                    let jsonfile = '/tmp/' + hash + 'json';
-                    let htmlfile = '/tmp/' + hash + 'html';
+                    let hash = crypto.createHash('sha256').update(`${scanID}${tmpHost}${tmpPort}${index}`).digest('hex');
+                    let jsonfile = '/tmp/json' + hash;
+                    let htmlfile = '/tmp/html' + hash;
                     
                     let run = spawn('./testssl.sh',
                       [
@@ -106,8 +106,6 @@ module.exports = function(RED) {
                         '--pfs',
                         '--rc4',
                         '--nodns',
-                        '--openssl-timeout',
-                        '30',
                         '--jsonfile',
                         jsonfile,
                         '--htmlfile',
