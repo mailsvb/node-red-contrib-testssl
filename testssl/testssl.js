@@ -97,19 +97,21 @@ module.exports = function(RED) {
                     let run = spawn('./testssl.sh',
                       [
                         openssl,
+                        '--ssl-native',
                         '--protocols',
-                        '--server-defaults',
-                        '--server-preference',
+                        '--grease',
                         '--headers',
                         '--vulnerable',
                         '--cipher-per-proto',
-                        '--pfs',
+                        '--fs',
                         '--rc4',
-                        '--nodns',
+                        '--nodns=none',
+                        '--phone-out',
                         '--jsonfile',
                         jsonfile,
                         '--htmlfile',
                         htmlfile,
+                        '--warnings=off',
                         '--ip',
                         singleAddrToScan,
                         tmpHost + ':' + tmpPort
@@ -129,7 +131,7 @@ module.exports = function(RED) {
                             run.kill();
                             return;
                         }
-                    }, 600000);
+                    }, 120000);
                     
                     // interval to inform user of ongoing activity
                     let interval = setInterval(() => {

@@ -11,7 +11,12 @@
     },
     "description": "node-red implementation of the testssl.sh script",
     "name": "node-red-contrib-testssl",
-    "keywords": [ "node-red", "testssl", "vulnerability", "scan" ],
+    "keywords": [
+        "node-red",
+        "testssl",
+        "vulnerability",
+        "scan"
+    ],
     "license": "MIT",
     "node-red": {
         "nodes": {
@@ -23,5 +28,5 @@
         "url": "git+https://github.com/mailsvb/node-red-contrib-testssl.git"
     },
     "homepage": "https://github.com/mailsvb/node-red-contrib-testssl#readme",
-    "version": "1.8.1"
+    "version": "1.9.0"
 }
