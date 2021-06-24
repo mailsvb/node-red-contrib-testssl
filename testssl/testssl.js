@@ -3,7 +3,6 @@ module.exports = function(RED) {
     const util = require('util');
     const fs = require('fs');
     const crypto = require('crypto');
-    const moment = require('moment');
     const validator = require("validator");
     const dns = require('dns');
     const spawn = require('child_process').spawn;
@@ -83,21 +82,21 @@ module.exports = function(RED) {
                 node.send(msg);
                 node.log(`[testssl][${scanID}] - scanning ${tmpHost} via ${IPsToScan.join()} on port ${tmpPort}`);
                 
-                let timeBefore = moment();
+                const timeBefore = new Date();
                 
                 IPsToScan.forEach((singleAddrToScan, index, arr) => {
                 
                     let output = "";
                     let error = "";
                     let timeout = false;
-                    let hash = crypto.createHash('sha256').update(`${scanID}${tmpHost}${tmpPort}${index}`).digest('hex');
-                    let jsonfile = '/tmp/json' + hash;
-                    let htmlfile = '/tmp/html' + hash;
+                    const hash = crypto.createHash('sha256').update(`${scanID}${tmpHost}${tmpPort}${index}`).digest('hex');
+                    const jsonfile = `/tmp/json${hash}`;
+                    const htmlfile = `/tmp/html${hash}`;
+                    const csvfile  = `/tmp/csv${hash}`;
                     
                     let run = spawn('./testssl.sh',
                       [
                         openssl,
-                        '--ssl-native',
                         '--protocols',
                         '--grease',
                         '--headers',
@@ -107,10 +106,13 @@ module.exports = function(RED) {
                         '--rc4',
                         '--nodns=none',
                         '--phone-out',
+                        '--mapping=rfc',
                         '--jsonfile',
                         jsonfile,
                         '--htmlfile',
                         htmlfile,
+                        '--csvfile',
+                        csvfile,
                         '--warnings=off',
                         '--ip',
                         singleAddrToScan,
@@ -122,21 +124,25 @@ module.exports = function(RED) {
                       }
                     );
                     
-                    // timeout for scan of 10 minutes
+                    // timeout for scan of 5 minutes
                     timeout = setTimeout(function(){
                         if (run != null) {
                             node.log(`[testssl][${scanID}][${index}] - timeout of scan`);
-                            node.status({fill:"red",shape:"dot",text:"timeout during scan"});
+                            node.status({
+                                fill:"red",
+                                shape:"dot",
+                                text:"timeout during scan"
+                            });
                             timeout = true;
                             run.kill();
                             return;
                         }
-                    }, 120000);
+                    }, 300000);
                     
                     // interval to inform user of ongoing activity
                     let interval = setInterval(() => {
                         if (run != null) {
-                            msg.payload = "scan is still running (" + moment().diff(timeBefore, 'seconds') + " seconds) for " + singleAddrToScan + ":" + tmpPort;
+                            msg.payload = `scan is still running (${getSecondsBetweenDates(timeBefore)} seconds) for ${singleAddrToScan}:${tmpPort}`;
                             node.send(msg);
                         }
                     }, 60000);
@@ -160,32 +166,29 @@ module.exports = function(RED) {
                             node.send(msg);
                         }
                         else {
-                            let timeAfter = moment();
+                            const timeAfter = new Date();
+                            const fileContent = {};
                             try {
-                                let tmp = jsonfile;
-                                jsonfile = fs.readFileSync(jsonfile).toString();
-                                fs.unlinkSync(tmp);
+                                fileContent.jsonfile = fs.readFileSync(jsonfile).toString();
+                                fs.unlinkSync(jsonfile);
+                                fileContent.htmlfile = fs.readFileSync(htmlfile).toString();
+                                fs.unlinkSync(htmlfile);
+                                fileContent.csvfile = fs.readFileSync(csvfile).toString();
+                                fs.unlinkSync(csvfile);
                             }
                             catch (e) {
-                                node.error(`[testssl][${scanID}][${index}] - ${e}`);
-                            }
-                            try {
-                                let tmp = htmlfile;
-                                htmlfile = fs.readFileSync(htmlfile).toString();
-                                fs.unlinkSync(tmp);
-                            }
-                            catch (e) {
-                                node.error(`[testssl][${scanID}][${index}] - ${e}`);
+                                node.error(`[testssl][${scanID}][${index}] - ${e && e.message}`);
                             }
                             let payload = {
                                 text: output,
-                                html: htmlfile,
-                                json: jsonfile,
+                                html: fileContent.htmlfile,
+                                json: fileContent.jsonfile,
+                                csv: fileContent.csvfile,
                                 timeout: timeout,
                                 host: singleAddrToScan,
-                                duration: timeAfter.diff(timeBefore, 'seconds'),
-                                start: timeBefore.utc().format(),
-                                end: timeAfter.utc().format()
+                                duration: getSecondsBetweenDates(timeBefore, timeAfter),
+                                start: formatDate(timeBefore),
+                                end: formatDate(timeAfter)
                             }
                             msg.payload = payload;
                             node.status({});
@@ -223,5 +226,24 @@ module.exports = function(RED) {
         {
             cb("this is not a valid host");
         }
+    }
+
+    const getSecondsBetweenDates = (startDate, endDate) => {
+        return Math.round( ( (endDate || new Date()) - startDate) / 1000);
+    }
+
+    const formatDate = (date) => {
+        const now = date || (new Date());
+        let MM = (now.getMonth() + 1);
+            if (MM < 10) { MM = '0' + MM; }
+        let DD = now.getDate();
+            if (DD < 10) { DD = '0' + DD; }
+        let H = now.getHours();
+            if (H < 10) { H = '0' + H; }
+        let M = now.getMinutes();
+            if (M < 10) { M = '0' + M; }
+        let S = now.getSeconds();
+            if (S < 10) { S = '0' + S; }
+        return `${now.getFullYear()}/${MM}/${DD} - ${H}:${M}:${S}`
     }
 }
